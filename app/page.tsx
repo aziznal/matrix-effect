@@ -1,101 +1,134 @@
-import Image from "next/image";
+"use client";
+
+import { useScreenSize } from "@/hooks/useScreenSize";
+import { useEffect, useState } from "react";
+
+// prettier-ignore
+const MATRIX_CHARS = [
+    // Katakana (Half-width)
+    'ｱ', 'ｲ', 'ｳ', 'ｴ', 'ｵ',
+    'ｶ', 'ｷ', 'ｸ', 'ｹ', 'ｺ',
+    'ｻ', 'ｼ', 'ｽ', 'ｾ', 'ｿ',
+    'ﾀ', 'ﾁ', 'ﾂ', 'ﾃ', 'ﾄ',
+    'ﾅ', 'ﾆ', 'ﾇ', 'ﾈ', 'ﾉ',
+    'ﾊ', 'ﾋ', 'ﾌ', 'ﾍ', 'ﾎ',
+    'ﾏ', 'ﾐ', 'ﾑ', 'ﾒ', 'ﾓ',
+    'ﾔ', 'ﾕ', 'ﾖ',
+    'ﾗ', 'ﾘ', 'ﾙ', 'ﾚ', 'ﾛ',
+    'ﾜ', 'ｦ', 'ﾝ',
+    // Hiragana
+    'あ', 'い', 'う', 'え', 'お',
+    'か', 'き', 'く', 'け', 'こ',
+    'さ', 'し', 'す', 'せ', 'そ',
+    'た', 'ち', 'つ', 'て', 'と',
+    'な', 'に', 'ぬ', 'ね', 'の',
+    'は', 'ひ', 'ふ', 'へ', 'ほ',
+    'ま', 'み', 'む', 'め', 'も',
+    'や', 'ゆ', 'よ',
+    'ら', 'り', 'る', 'れ', 'ろ',
+    'わ', 'を', 'ん',
+    // Latin Alphabet (Uppercase)
+    'A', 'B', 'C', 'D', 'E', 'F', 'G', 'H', 'I', 'J',
+    'K', 'L', 'M', 'N', 'O', 'P', 'Q', 'R', 'S', 'T',
+    'U', 'V', 'W', 'X', 'Y', 'Z',
+    // Greek Letters
+    'Α', 'Β', 'Γ', 'Δ', 'Ε',
+    'Ζ', 'Η', 'Θ', 'Ι', 'Κ',
+    'Λ', 'Μ', 'Ν', 'Ξ', 'Ο',
+    'Π', 'Ρ', 'Σ', 'Τ', 'Υ',
+    'Φ', 'Χ', 'Ψ', 'Ω',
+    // Cyrillic Letters
+    'А', 'Б', 'В', 'Г', 'Д',
+    'Е', 'Ё', 'Ж', 'З', 'И',
+    'Й', 'К', 'Л', 'М', 'Н',
+    'О', 'П', 'Р', 'С', 'Т',
+    'У', 'Ф', 'Х', 'Ц', 'Ч',
+    'Ш', 'Щ', 'Ъ', 'Ы', 'Ь',
+    'Э', 'Ю', 'Я',
+    // Chinese Characters
+    '中', '国', '文', '字', '雨', '電', '話', '車', '山', '水',
+    // Numbers
+    '0', '1', '2', '3', '4', '5', '6', '7', '8', '9',
+    // Symbols
+    '!', '@', '//', '$', '%', '^', '&', '*', '(', ')',
+    '-', '_', '+', '=', '[', ']', '{', '}', '|', '\\',
+    ':', ';', '"', '\'', '<', '>', ',', '.', '?', '/',
+    '~', '`', '✓', '✔', '✕', '✖', '★', '☆', '○', '●',
+    // Mathematical Symbols
+    '∞', '≠', '≡', '≤', '≥', '±', '∑', '∏', '∫', '√',
+    '∆', '∇', '∂', '∈', '∉', '∅', '∧', '∨', '⊕', '⊗',
+    // Miscellaneous Symbols
+    '♠', '♣', '♥', '♦', '♤', '♧', '♡', '♢', '☺', '☻',
+    '♂', '♀', '♪', '♫', '☼', '§', '¤', '©', '®', '™'
+]
+
+const FONT_SIZE = 24;
 
 export default function Home() {
-  return (
-    <div className="grid grid-rows-[20px_1fr_20px] items-center justify-items-center min-h-screen p-8 pb-20 gap-16 sm:p-20 font-[family-name:var(--font-geist-sans)]">
-      <main className="flex flex-col gap-8 row-start-2 items-center sm:items-start">
-        <Image
-          className="dark:invert"
-          src="/next.svg"
-          alt="Next.js logo"
-          width={180}
-          height={38}
-          priority
-        />
-        <ol className="list-inside list-decimal text-sm text-center sm:text-left font-[family-name:var(--font-geist-mono)]">
-          <li className="mb-2">
-            Get started by editing{" "}
-            <code className="bg-black/[.05] dark:bg-white/[.06] px-1 py-0.5 rounded font-semibold">
-              app/page.tsx
-            </code>
-            .
-          </li>
-          <li>Save and see your changes instantly.</li>
-        </ol>
+  const { screenWidth, screenHeight } = useScreenSize();
 
-        <div className="flex gap-4 items-center flex-col sm:flex-row">
-          <a
-            className="rounded-full border border-solid border-transparent transition-colors flex items-center justify-center bg-foreground text-background gap-2 hover:bg-[#383838] dark:hover:bg-[#ccc] text-sm sm:text-base h-10 sm:h-12 px-4 sm:px-5"
-            href="https://vercel.com/new?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            <Image
-              className="dark:invert"
-              src="/vercel.svg"
-              alt="Vercel logomark"
-              width={20}
-              height={20}
-            />
-            Deploy now
-          </a>
-          <a
-            className="rounded-full border border-solid border-black/[.08] dark:border-white/[.145] transition-colors flex items-center justify-center hover:bg-[#f2f2f2] dark:hover:bg-[#1a1a1a] hover:border-transparent text-sm sm:text-base h-10 sm:h-12 px-4 sm:px-5 sm:min-w-44"
-            href="https://nextjs.org/docs?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            Read our docs
-          </a>
-        </div>
-      </main>
-      <footer className="row-start-3 flex gap-6 flex-wrap items-center justify-center">
-        <a
-          className="flex items-center gap-2 hover:underline hover:underline-offset-4"
-          href="https://nextjs.org/learn?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <Image
-            aria-hidden
-            src="/file.svg"
-            alt="File icon"
-            width={16}
-            height={16}
-          />
-          Learn
-        </a>
-        <a
-          className="flex items-center gap-2 hover:underline hover:underline-offset-4"
-          href="https://vercel.com/templates?framework=next.js&utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <Image
-            aria-hidden
-            src="/window.svg"
-            alt="Window icon"
-            width={16}
-            height={16}
-          />
-          Examples
-        </a>
-        <a
-          className="flex items-center gap-2 hover:underline hover:underline-offset-4"
-          href="https://nextjs.org?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <Image
-            aria-hidden
-            src="/globe.svg"
-            alt="Globe icon"
-            width={16}
-            height={16}
-          />
-          Go to nextjs.org →
-        </a>
-      </footer>
+  const rowCount = Math.ceil(screenHeight / (FONT_SIZE + 1));
+  const colCount = Math.ceil(screenWidth / FONT_SIZE);
+
+  return (
+    <div
+      className="flex leading-none font-mono overflow-x-clip"
+      style={{
+        fontSize: FONT_SIZE,
+      }}
+    >
+      {Array(colCount)
+        .fill(0)
+        .map((_, i) => (
+          <div key={`col-${i}`} className="flex flex-col">
+            {Array(rowCount)
+              .fill(0)
+              .map((_, j) => (
+                <Char key={`col-${i}row-${j}`} index={1} />
+              ))}
+          </div>
+        ))}
     </div>
   );
 }
+
+function getRandomChar(chars: string[]) {
+  return chars[Math.floor(Math.random() * chars.length)];
+}
+
+function getRandomInt(start: number, end: number): number {
+  const range = end - start + 1;
+  return Math.floor(Math.random() * range) + start;
+}
+
+function getRandomFloat(start: number, end: number): number {
+  return Math.random() * (end - start) + start;
+}
+
+const Char: React.FC<{ index: number }> = ({ index }) => {
+  const [char, setChar] = useState(getRandomChar(MATRIX_CHARS));
+
+  useEffect(() => {
+    const interval = setInterval(
+      () => {
+        setChar(getRandomChar(MATRIX_CHARS));
+      },
+      getRandomInt(200, 500),
+    );
+
+    return () => clearInterval(interval);
+  }, []);
+
+  return (
+    <span
+      style={{
+        width: `${FONT_SIZE}px`,
+        height: `${FONT_SIZE}px`,
+        opacity: getRandomFloat(0, 1),
+      }}
+      className="antialiased text-green-400"
+    >
+      {char}
+    </span>
+  );
+};
