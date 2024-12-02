@@ -84,7 +84,7 @@ export default function Home() {
             {Array(rowCount)
               .fill(0)
               .map((_, j) => (
-                <Char key={`col-${i}row-${j}`} index={1} />
+                <Char key={`col-${i}row-${j}`} index={j} />
               ))}
           </div>
         ))}
@@ -105,7 +105,7 @@ function getRandomFloat(start: number, end: number): number {
   return Math.random() * (end - start) + start;
 }
 
-const Char: React.FC<{ index: number }> = ({ index }) => {
+const Char: React.FC<{ index: number }> = ({}) => {
   const [char, setChar] = useState(getRandomChar(MATRIX_CHARS));
 
   useEffect(() => {
@@ -121,12 +121,13 @@ const Char: React.FC<{ index: number }> = ({ index }) => {
 
   return (
     <span
+      className="antialiased text-green-400"
       style={{
         width: `${FONT_SIZE}px`,
         height: `${FONT_SIZE}px`,
         opacity: getRandomFloat(0, 1),
+        textShadow: "0 0 5px #fff",
       }}
-      className="antialiased text-green-400"
     >
       {char}
     </span>
