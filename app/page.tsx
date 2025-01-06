@@ -1,7 +1,9 @@
 "use client";
 
 import { useScreenSize } from "@/hooks/useScreenSize";
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
+
+export const dynamic = "force-dynamic";
 
 // prettier-ignore
 const MATRIX_CHARS = [
@@ -67,8 +69,80 @@ const FONT_SIZE = 24;
 export default function Home() {
   const { screenWidth, screenHeight } = useScreenSize();
 
+  const canvasRef = useRef<HTMLCanvasElement>(null);
+
   const rowCount = Math.ceil(screenHeight / (FONT_SIZE + 1));
   const colCount = Math.ceil(screenWidth / FONT_SIZE);
+
+  useEffect(() => {
+    const canvas = canvasRef.current;
+
+    if (!canvas) return;
+
+    const ctx = canvas.getContext("2d");
+
+    if (!ctx) return;
+
+    canvas.width = window.innerWidth;
+    canvas.height = window.innerHeight;
+
+    const getNewPosY = (currentPosY: number, multiplier?: number) => {
+      if (currentPosY > canvas.height + 40) return -20;
+      return currentPosY + 1 * (multiplier ?? 1);
+    };
+
+    const drawChar = (x: number) => {
+      let y = getRandomInt(0, canvas.height);
+
+      const ySpeedMultiplier = getRandomFloat(1, 3);
+
+      let char = getRandomChar(MATRIX_CHARS);
+
+      setInterval(() => {
+        char = getRandomChar(MATRIX_CHARS);
+      }, 350 * ySpeedMultiplier);
+
+      const draw = () => {
+        ctx.font = "30px JetBrainsMono Nerd Font";
+
+        ctx.fillText(char, x, y);
+
+        ctx.fillStyle = "lightgreen";
+        ctx.shadowColor = "green";
+        ctx.shadowOffsetX = 3;
+        ctx.shadowOffsetY = 3;
+        ctx.shadowBlur = 12;
+
+        y = getNewPosY(y, ySpeedMultiplier);
+      };
+
+      return {
+        draw,
+      };
+    };
+
+    const chars = Array(45)
+      .fill(0)
+      .map((_, i) => drawChar(20 * (i + 1)));
+
+    const draw = () => {
+      ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+      chars.forEach((c) => c.draw());
+    };
+
+    const interval = setInterval(draw, 16);
+
+    return () => clearInterval(interval);
+  }, []);
+
+  return (
+    <div>
+      <canvas ref={canvasRef} className="bg-zinc-950">
+        Canvas is not supported in your browser.
+      </canvas>
+    </div>
+  );
 
   return (
     <div
