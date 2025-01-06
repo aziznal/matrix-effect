@@ -91,7 +91,7 @@ export default function Home() {
       x: number;
       y: number;
 
-      char: string;
+      headChar: string;
       trailChars: string[];
 
       step: number;
@@ -103,22 +103,27 @@ export default function Home() {
 
         this.y = getRandomInt(0, canvas?.height);
 
-        this.char = getRandomChar(MATRIX_CHARS);
+        this.headChar = getRandomChar(MATRIX_CHARS);
+
         this.trailChars = Array(TRAIL_LENGTH)
           .fill(0)
           .map(() => getRandomChar(MATRIX_CHARS));
 
         this.step = getRandomInt(100, 500);
 
-        // update character every few hundred ms
+        // update char and move down every few hundred ms
         setInterval(() => {
-          this.char = getRandomChar(MATRIX_CHARS);
-        }, this.step);
+          const previousHeadChar = this.headChar;
+          this.headChar = getRandomChar(MATRIX_CHARS);
 
-        // move char down once every few hundred ms
-        setInterval(() => {
           if (this.y > canvas.height + BOTTOM_MARGIN) this.y = -FONT_SIZE;
           this.y += FONT_SIZE;
+
+          // trail chars are updated top to bottom
+          this.trailChars = [
+            previousHeadChar,
+            ...this.trailChars.slice(0, this.trailChars.length - 1),
+          ];
         }, this.step);
       }
 
@@ -136,9 +141,7 @@ export default function Home() {
 
         ctx.translate(canvas.width, 0);
         ctx.scale(-1, 1);
-        ctx.fillText(this.char, this.x, this.y);
-
-        // this.y = getNewPosY(this.y, this.ySpeedMultiplier);
+        ctx.fillText(this.headChar, this.x, this.y);
 
         ctx.restore();
 
@@ -154,7 +157,7 @@ export default function Home() {
           ctx.font = `${FONT_SIZE}px JetBrainsMono Nerd Font`;
 
           const opacity =
-            (50 * (this.trailChars.length - (i + 1))) / this.trailChars.length;
+            (30 * (this.trailChars.length - (i + 1))) / this.trailChars.length;
 
           ctx.fillStyle = `rgb(144 238 144 / ${opacity}%)`;
 
