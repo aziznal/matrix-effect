@@ -64,10 +64,10 @@ const MATRIX_CHARS = [
 ]
 
 /** Amount of characters trailing behind */
-const TRAIL_LENGTH = 5;
+const TRAIL_LENGTH = 10;
 
 /** Font size in pixels */
-const FONT_SIZE = 30;
+const FONT_SIZE = 35;
 
 export default function Home() {
   const canvasRef = useRef<HTMLCanvasElement>(null);
@@ -87,7 +87,7 @@ export default function Home() {
     const getNewPosY = (currentPosY: number, multiplier?: number) => {
       const bottomMargin = FONT_SIZE * (TRAIL_LENGTH + 1); // +1 comes from the head char
 
-      if (currentPosY > canvas.height + bottomMargin) return -20;
+      if (currentPosY > canvas.height + bottomMargin) return -FONT_SIZE;
       return currentPosY + 1 * (multiplier ?? 1);
     };
 
@@ -105,7 +105,7 @@ export default function Home() {
 
         this.y = getRandomInt(0, canvas?.height);
 
-        this.ySpeedMultiplier = getRandomFloat(1, 1.5);
+        this.ySpeedMultiplier = getRandomFloat(1, 2);
 
         this.char = getRandomChar(MATRIX_CHARS);
         this.trailChars = Array(TRAIL_LENGTH)
@@ -150,7 +150,7 @@ export default function Home() {
           ctx.font = `${FONT_SIZE}px JetBrainsMono Nerd Font`;
 
           const opacity =
-            (100 * (this.trailChars.length - (i + 1))) / this.trailChars.length;
+            (50 * (this.trailChars.length - (i + 1))) / this.trailChars.length;
 
           ctx.fillStyle = `rgb(144 238 144 / ${opacity}%)`;
 
@@ -158,26 +158,25 @@ export default function Home() {
           ctx.shadowOffsetX = 0;
           ctx.shadowOffsetY = 0;
           ctx.shadowBlur = 8;
-          ctx.fillText(char, this.x, this.y - 30 * (i + 1));
 
           ctx.translate(canvas.width, 0);
           ctx.scale(-1, 1);
+
+          ctx.fillText(char, this.x, this.y - FONT_SIZE * (i + 1));
 
           ctx.restore();
         });
       }
     }
 
-    const charWidth = 15;
-
-    const maxChars = Math.floor(canvas.width / charWidth);
+    const maxChars = Math.floor(canvas.width / FONT_SIZE);
 
     const chars = Array(maxChars)
       .fill(0)
       .map(
         (_, i) =>
           new Char({
-            x: charWidth * (i + 1),
+            x: FONT_SIZE * (i + 1),
           }),
       );
 
