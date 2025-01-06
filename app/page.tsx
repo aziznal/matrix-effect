@@ -1,5 +1,7 @@
 "use client";
 
+import { LucideGithub } from "lucide-react";
+import Link from "next/link";
 import { useEffect, useRef } from "react";
 
 // TODO: measure perf
@@ -9,7 +11,6 @@ import { useEffect, useRef } from "react";
 //  - color
 //  - density
 //  - trail length
-// TODO: add my name
 
 export const dynamic = "force-dynamic";
 
@@ -215,10 +216,28 @@ export default function Home() {
   }, []);
 
   return (
-    <div>
+    <div className="relative">
       <canvas ref={canvasRef} className="bg-zinc-950">
         Canvas is not supported in your browser.
       </canvas>
+
+      <div className="absolute bottom-12 right-12 flex gap-3 items-center">
+        <Link
+          target="_blank"
+          className="px-4 py-3 rounded-full bg-green-400 bg-opacity-10  border-2 border-green-600 shadow backdrop-blur font-bold text-green-300 hover:bg-opacity-35 transition-colors text-sm"
+          href="https://aziznal.com"
+        >
+          by Aziz Nal
+        </Link>
+
+        <Link
+          target="_blank"
+          className="px-4 py-3 rounded-full bg-slate-400 bg-opacity-10 border-2 border-slate-600 shadow backdrop-blur font-bold text-white hover:bg-opacity-35 transition-colors text-sm"
+          href="https://github.com/aziznal/matrix-effect"
+        >
+          <LucideGithub />
+        </Link>
+      </div>
     </div>
   );
 }
