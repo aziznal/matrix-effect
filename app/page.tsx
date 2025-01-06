@@ -2,6 +2,15 @@
 
 import { useEffect, useRef } from "react";
 
+// TODO: measure perf
+// TODO: improve perf
+// TODO: make it easy to fill screen
+// TODO: add config options, incl:
+//  - color
+//  - density
+//  - trail length
+// TODO: add my name
+
 export const dynamic = "force-dynamic";
 
 // prettier-ignore
