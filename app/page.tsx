@@ -64,10 +64,13 @@ const MATRIX_CHARS = [
 ]
 
 /** Amount of characters trailing behind */
-const TRAIL_LENGTH = 10;
+const TRAIL_LENGTH = 7;
 
 /** Font size in pixels */
 const FONT_SIZE = 35;
+
+/** How far down a character trail must go below the screen to fully disappear */
+const BOTTOM_MARGIN = FONT_SIZE * (TRAIL_LENGTH + 1); // +1 comes from the head char
 
 export default function Home() {
   const canvasRef = useRef<HTMLCanvasElement>(null);
@@ -84,19 +87,14 @@ export default function Home() {
     canvas.width = window.innerWidth;
     canvas.height = window.innerHeight;
 
-    const getNewPosY = (currentPosY: number, multiplier?: number) => {
-      const bottomMargin = FONT_SIZE * (TRAIL_LENGTH + 1); // +1 comes from the head char
-
-      if (currentPosY > canvas.height + bottomMargin) return -FONT_SIZE;
-      return currentPosY + 1 * (multiplier ?? 1);
-    };
-
     class Char {
       x: number;
       y: number;
-      ySpeedMultiplier: number;
+
       char: string;
       trailChars: string[];
+
+      step: number;
 
       constructor(args: { x: number }) {
         if (!ctx || !canvas) throw new Error("Canvas or Context is undefined.");
@@ -105,17 +103,23 @@ export default function Home() {
 
         this.y = getRandomInt(0, canvas?.height);
 
-        this.ySpeedMultiplier = getRandomFloat(1, 2);
-
         this.char = getRandomChar(MATRIX_CHARS);
         this.trailChars = Array(TRAIL_LENGTH)
           .fill(0)
           .map(() => getRandomChar(MATRIX_CHARS));
 
+        this.step = getRandomInt(100, 500);
+
         // update character every few hundred ms
         setInterval(() => {
           this.char = getRandomChar(MATRIX_CHARS);
-        }, 200 * this.ySpeedMultiplier);
+        }, this.step);
+
+        // move char down once every few hundred ms
+        setInterval(() => {
+          if (this.y > canvas.height + BOTTOM_MARGIN) this.y = -FONT_SIZE;
+          this.y += FONT_SIZE;
+        }, this.step);
       }
 
       draw() {
@@ -124,7 +128,7 @@ export default function Home() {
         ctx.save();
 
         ctx.font = `${FONT_SIZE}px JetBrainsMono Nerd Font`;
-        ctx.fillStyle = "lightgreen";
+        ctx.fillStyle = "white";
         ctx.shadowColor = "lime";
         ctx.shadowOffsetX = 0;
         ctx.shadowOffsetY = 0;
@@ -134,7 +138,7 @@ export default function Home() {
         ctx.scale(-1, 1);
         ctx.fillText(this.char, this.x, this.y);
 
-        this.y = getNewPosY(this.y, this.ySpeedMultiplier);
+        // this.y = getNewPosY(this.y, this.ySpeedMultiplier);
 
         ctx.restore();
 
@@ -169,14 +173,15 @@ export default function Home() {
       }
     }
 
-    const maxChars = Math.floor(canvas.width / FONT_SIZE);
+    const maxChars = 3 * Math.floor(canvas.width / FONT_SIZE);
+    const spaceBetweenChars = canvas.width / maxChars;
 
     const chars = Array(maxChars)
       .fill(0)
       .map(
         (_, i) =>
           new Char({
-            x: FONT_SIZE * (i + 1),
+            x: spaceBetweenChars * (i + 1),
           }),
       );
 
@@ -210,8 +215,4 @@ function getRandomChar(chars: string[]) {
 function getRandomInt(start: number, end: number): number {
   const range = end - start + 1;
   return Math.floor(Math.random() * range) + start;
-}
-
-function getRandomFloat(start: number, end: number): number {
-  return Math.random() * (end - start) + start;
 }
