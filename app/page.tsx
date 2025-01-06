@@ -134,10 +134,10 @@ export default function Home() {
 
         ctx.font = `${FONT_SIZE}px JetBrainsMono Nerd Font`;
         ctx.fillStyle = "white";
-        ctx.shadowColor = "lime";
+        ctx.shadowColor = "white";
         ctx.shadowOffsetX = 0;
         ctx.shadowOffsetY = 0;
-        ctx.shadowBlur = 8;
+        ctx.shadowBlur = 12;
 
         ctx.translate(canvas.width, 0);
         ctx.scale(-1, 1);
@@ -164,7 +164,7 @@ export default function Home() {
           ctx.shadowColor = "lime";
           ctx.shadowOffsetX = 0;
           ctx.shadowOffsetY = 0;
-          ctx.shadowBlur = 8;
+          ctx.shadowBlur = 4;
 
           ctx.translate(canvas.width, 0);
           ctx.scale(-1, 1);
@@ -176,7 +176,7 @@ export default function Home() {
       }
     }
 
-    const maxChars = 3 * Math.floor(canvas.width / FONT_SIZE);
+    const maxChars = 4 * Math.floor(canvas.width / FONT_SIZE);
     const spaceBetweenChars = canvas.width / maxChars;
 
     const chars = Array(maxChars)
