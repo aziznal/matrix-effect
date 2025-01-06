@@ -72,6 +72,9 @@ const FONT_SIZE = 35;
 /** How far down a character trail must go below the screen to fully disappear */
 const BOTTOM_MARGIN = FONT_SIZE * (TRAIL_LENGTH + 1); // +1 comes from the head char
 
+/** How stacked up the characters are. 1 means divided among the screen width equally */
+const DENSITY = 5;
+
 export default function Home() {
   const canvasRef = useRef<HTMLCanvasElement>(null);
 
@@ -176,7 +179,7 @@ export default function Home() {
       }
     }
 
-    const maxChars = 4 * Math.floor(canvas.width / FONT_SIZE);
+    const maxChars = DENSITY * Math.floor(canvas.width / FONT_SIZE);
     const spaceBetweenChars = canvas.width / maxChars;
 
     const chars = Array(maxChars)
