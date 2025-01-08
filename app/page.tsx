@@ -11,6 +11,7 @@ import { useEffect, useRef } from "react";
 //  - color
 //  - density
 //  - trail length
+//  - effects (blur, shadow, glow, etc.)
 
 export const dynamic = "force-dynamic";
 
@@ -77,13 +78,13 @@ const MATRIX_CHARS = [
 const TRAIL_LENGTH = 7;
 
 /** Font size in pixels */
-const FONT_SIZE = 35;
+const FONT_SIZE = 21;
 
 /** How far down a character trail must go below the screen to fully disappear */
 const BOTTOM_MARGIN = FONT_SIZE * (TRAIL_LENGTH + 1); // +1 comes from the head char
 
 /** How stacked up the characters are. 1 means divided among the screen width equally */
-const DENSITY = 5;
+const DENSITY = 8;
 
 export default function Home() {
   const canvasRef = useRef<HTMLCanvasElement>(null);
@@ -107,7 +108,8 @@ export default function Home() {
       headChar: string;
       trailChars: string[];
 
-      step: number;
+      updateStep: number;
+      lastUpdateTime: number;
 
       constructor(args: { x: number }) {
         if (!ctx || !canvas) throw new Error("Canvas or Context is undefined.");
@@ -122,22 +124,28 @@ export default function Home() {
           .fill(0)
           .map(() => getRandomChar(MATRIX_CHARS));
 
-        this.step = getRandomInt(100, 500);
+        this.updateStep = getRandomInt(100, 500);
+        this.lastUpdateTime = Date.now();
+      }
 
-        // update char and move down every few hundred ms
-        setInterval(() => {
-          const previousHeadChar = this.headChar;
-          this.headChar = getRandomChar(MATRIX_CHARS);
+      update() {
+        if (!ctx || !canvas) throw new Error("Canvas or Context is undefined.");
 
-          if (this.y > canvas.height + BOTTOM_MARGIN) this.y = -FONT_SIZE;
-          this.y += FONT_SIZE;
+        if (Date.now() - this.lastUpdateTime < this.updateStep) return;
 
-          // trail chars are updated top to bottom
-          this.trailChars = [
-            previousHeadChar,
-            ...this.trailChars.slice(0, this.trailChars.length - 1),
-          ];
-        }, this.step);
+        this.lastUpdateTime = Date.now();
+
+        const previousHeadChar = this.headChar;
+        this.headChar = getRandomChar(MATRIX_CHARS);
+
+        if (this.y > canvas.height + BOTTOM_MARGIN) this.y = -FONT_SIZE;
+        this.y += FONT_SIZE;
+
+        // trail chars are updated top to bottom
+        this.trailChars = [
+          previousHeadChar,
+          ...this.trailChars.slice(0, this.trailChars.length - 1),
+        ];
       }
 
       draw() {
@@ -207,10 +215,13 @@ export default function Home() {
       ctx.fillRect(0, 0, canvas.width, canvas.height);
       ctx.restore();
 
-      chars.forEach((c) => c.draw());
+      chars.forEach((c) => {
+        c.update();
+        c.draw();
+      });
     };
 
-    const interval = setInterval(draw, 16);
+    const interval = setInterval(draw, (1000 * 1) / 30);
 
     return () => clearInterval(interval);
   }, []);
@@ -224,7 +235,7 @@ export default function Home() {
       <div className="absolute bottom-12 right-12 flex gap-3 items-center">
         <Link
           target="_blank"
-          className="px-4 py-3 rounded-full bg-green-400 bg-opacity-10  border-2 border-green-600 shadow backdrop-blur font-bold text-green-300 hover:bg-opacity-35 transition-colors text-sm"
+          className="px-4 py-3 rounded-full bg-green-400 bg-opacity-10 border-2 border-green-600 shadow backdrop-blur font-bold text-green-300 hover:bg-opacity-35 transition-colors text-sm"
           href="https://aziznal.com"
         >
           by Aziz Nal
