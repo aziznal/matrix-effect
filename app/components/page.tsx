@@ -1,11 +1,14 @@
-import { PropsWithChildren } from "react";
+"use client";
+
+import { PropsWithChildren, useState } from "react";
 import { ConfigurationProvider, ConfigurationWindow } from "./Configuration";
+import Slider from "./Slider";
 
 export const dynamic = "force-dynamic";
 
 export default function ComponentsPlayground() {
   return (
-    <div className="container mx-auto my-12 flex min-h-[100dvh] flex-col">
+    <div className="container mx-auto my-12 flex min-h-[100dvh] flex-col px-4">
       <h1 className="mb-8 text-center text-2xl font-bold">
         Component Playground
       </h1>
@@ -20,8 +23,7 @@ export default function ComponentsPlayground() {
 
       <Component>
         <ComponentTitle>Slider</ComponentTitle>
-
-        TODO: create slider component
+        <SliderDemo />
       </Component>
     </div>
   );
@@ -33,4 +35,22 @@ function Component(props: PropsWithChildren) {
 
 function ComponentTitle(props: PropsWithChildren) {
   return <h2 className="mb-3 text-lg font-bold">{props.children}</h2>;
+}
+
+function SliderDemo() {
+  const [value, setValue] = useState(50);
+  const [slider2Value, setSlider2Value] = useState(50);
+
+  return (
+    <div className="md:w-[50%]">
+      <Slider min={-255} max={255} value={value} onValueChange={setValue} />
+
+      <Slider
+        min={0}
+        max={200}
+        value={slider2Value}
+        onValueChange={setSlider2Value}
+      />
+    </div>
+  );
 }
