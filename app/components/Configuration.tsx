@@ -1,5 +1,6 @@
 "use client";
 
+import { cn } from "@/lib/utils";
 import { LucideGithub, LucideX } from "lucide-react";
 import Link from "next/link";
 import {
@@ -74,13 +75,18 @@ export function ConfigurationProvider(props: PropsWithChildren) {
   );
 }
 
-export function ConfigurationWindow() {
+export function ConfigurationWindow(props: { className?: string }) {
   const config = useConfiguration();
 
   if (!config.isConfigOpen) return null;
 
   return (
-    <div className="absolute bottom-12 right-12 flex flex-col items-center gap-3 rounded-lg border-2 border-green-600 bg-green-400 bg-opacity-10 p-3 text-sm shadow backdrop-blur md:w-[350px]">
+    <div
+      className={cn(
+        "absolute bottom-12 right-12 flex flex-col items-center gap-3 rounded-lg border-2 border-green-600 bg-green-400 bg-opacity-10 p-3 text-sm shadow backdrop-blur md:w-[350px]",
+        props.className,
+      )}
+    >
       <LucideX
         className="absolute right-4 top-4 cursor-pointer"
         onClick={() => config.setIsConfigOpen(false)}
