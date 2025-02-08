@@ -2,7 +2,7 @@
 
 import { PropsWithChildren, useState } from "react";
 import { ConfigurationProvider, ConfigurationWindow } from "./Configuration";
-import Slider from "./Slider";
+import { Slider, SliderWithInput } from "./Slider";
 
 export const dynamic = "force-dynamic";
 
@@ -39,17 +39,16 @@ function ComponentTitle(props: PropsWithChildren) {
 
 function SliderDemo() {
   const [value, setValue] = useState(50);
-  const [slider2Value, setSlider2Value] = useState(50);
 
   return (
     <div className="md:w-[50%]">
-      <Slider min={-255} max={255} value={value} onValueChange={setValue} />
+      <Slider min={-700} max={700} value={value} onValueChange={setValue} />
 
-      <Slider
-        min={0}
-        max={200}
-        value={slider2Value}
-        onValueChange={setSlider2Value}
+      <SliderWithInput
+        min={-700}
+        max={700}
+        value={value}
+        onValueChange={setValue}
       />
     </div>
   );

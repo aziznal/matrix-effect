@@ -1,5 +1,6 @@
 import { cn } from "@/lib/utils";
 import { useEffect, useMemo, useRef, useState } from "react";
+import { Input } from "./Input";
 
 type SliderProps = {
   min: number;
@@ -7,19 +8,23 @@ type SliderProps = {
 
   value: number;
   onValueChange: (value: number) => void;
+
+  className?: string;
 };
 
-export default function Slider({
+export function Slider({
   value,
   min,
   max,
   onValueChange,
+  className,
 }: SliderProps) {
   const range = useMemo(() => Math.abs(max) + Math.abs(min), [max, min]);
 
+  // this maps values from the domain of the input to a domain where all values are positive
   const currentValue = useMemo(() => {
-    return 100 * (value / range);
-  }, [range, value]);
+    return mapToDomain(value, { min, max }, { min: 0, max: 100 });
+  }, [max, min, value]);
 
   const containerRef = useRef<HTMLDivElement>(null);
 
@@ -33,18 +38,15 @@ export default function Slider({
     const startDragging = (event: MouseEvent) => {
       setIsDragging(true);
       setMouseX(event.x);
-      console.log("started dragging");
     };
 
     const drag = (event: MouseEvent) => {
       if (!isDragging) return;
       setMouseX(event.x);
-      console.log("dragging");
     };
 
     const stopDragging = () => {
       setIsDragging(false);
-      console.log("stopped dragging!");
     };
 
     container.addEventListener("pointerdown", startDragging);
@@ -69,14 +71,26 @@ export default function Slider({
     /** the click relative to the slider's x rather than the screen's */
     const relativeClickX = mouseX - container.getBoundingClientRect().left;
 
+    /** new value is a ratio of the available range */
     const newValue = (relativeClickX / containerWidth) * range;
 
-    onValueChange(newValue);
-  }, [isDragging, max, mouseX, onValueChange, range, value]);
+    onValueChange(
+      round(
+        clamp(
+          mapToDomain(newValue, { min: 0, max: range }, { min, max }),
+          min,
+          max,
+        ),
+      ),
+    );
+  }, [isDragging, max, min, mouseX, onValueChange, range, value]);
 
   return (
     <div
-      className="relative my-6 cursor-pointer touch-none rounded-full border border-green-800 before:absolute before:top-[50%] before:block before:h-[400%] before:w-full before:-translate-y-[50%] before:content-['']"
+      className={cn(
+        "relative my-6 cursor-pointer touch-none rounded-full border border-green-800 before:absolute before:top-[50%] before:block before:h-[400%] before:w-full before:-translate-y-[50%] before:content-['']",
+        className,
+      )}
       ref={containerRef}
     >
       <div
@@ -85,7 +99,7 @@ export default function Slider({
           width: `${currentValue}%`,
           maxWidth: "100%",
         }}
-      />
+      ></div>
 
       <div
         className={cn(
@@ -93,8 +107,57 @@ export default function Slider({
           isDragging && "bg-emerald-600",
         )}
         style={{
-          left: `${clamp(currentValue, 0, 100)}%`,
+          left: `${round(clamp(currentValue, 0, 100))}%`,
         }}
+      ></div>
+    </div>
+  );
+}
+
+export function SliderWithInput(props: SliderProps) {
+  // input has its own value control flow to accomodate any crazy values
+  // the user may enter but only accept valid ones
+  //
+  // e.g. to allow entering negative values which start with a '-' which
+  // gets transformed to a NaN making it impossible to enter negative numbers
+  const [inputValue, setInputValue] = useState<string>(props.value.toString());
+
+  // to prevent infinite calls to the effects
+  const [shouldEmitInputUpdate, setShouldEmitInputUpdate] = useState(false);
+
+  const handleInputChange = (value: string) => {
+    setInputValue(value);
+    setShouldEmitInputUpdate(true);
+  };
+
+  // always update input with new values from parent
+  useEffect(() => {
+    setInputValue(props.value.toString());
+  }, [props.value]);
+
+  // emit only valid input updates
+  useEffect(() => {
+    if (!shouldEmitInputUpdate) return;
+
+    if (!inputValue) return;
+
+    const parsedValue = +inputValue;
+
+    if (isNaN(parsedValue)) return;
+
+    props.onValueChange(parsedValue);
+
+    setShouldEmitInputUpdate(false);
+  }, [inputValue, props, shouldEmitInputUpdate]);
+
+  return (
+    <div className="flex items-center gap-3">
+      <Slider className="flex-1" {...props} />
+
+      <Input
+        className="w-[70px]"
+        value={inputValue}
+        onChange={(e) => handleInputChange(e.target.value)}
       />
     </div>
   );
@@ -102,4 +165,28 @@ export default function Slider({
 
 function clamp(num: number, min: number, max: number) {
   return num < min ? min : num > max ? max : num;
+}
+
+function round(num: number) {
+  return Math.round(num);
+}
+
+function mapToDomain(
+  num: number,
+
+  fromRange: {
+    min: number;
+    max: number;
+  },
+
+  toRange: {
+    min: number;
+    max: number;
+  },
+) {
+  return (
+    ((num - fromRange.min) * (toRange.max - toRange.min)) /
+      (fromRange.max - fromRange.min) +
+    toRange.min
+  );
 }
