@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useRef } from "react";
+import { useConfiguration } from "./Configuration";
 
 // TODO: measure perf
 // TODO: improve perf
@@ -65,20 +66,10 @@ const MATRIX_CHARS = [
     // '♂', '♀', '♪', '♫', '☼', '§', '¤', '©', '®', '™'
 ]
 
-/** Amount of characters trailing behind */
-const TRAIL_LENGTH = 7;
-
-/** Font size in pixels */
-const FONT_SIZE = 21;
-
-/** How far down a character trail must go below the screen to fully disappear */
-const BOTTOM_MARGIN = FONT_SIZE * (TRAIL_LENGTH + 1); // +1 comes from the head char
-
-/** How stacked up the characters are. 1 means divided among the screen width equally */
-const DENSITY = 8;
-
 export function MatrixDigitalRain() {
   const canvasRef = useRef<HTMLCanvasElement>(null);
+
+  const config = useConfiguration();
 
   useEffect(() => {
     const canvas = canvasRef.current;
@@ -111,7 +102,7 @@ export function MatrixDigitalRain() {
 
         this.headChar = getRandomChar(MATRIX_CHARS);
 
-        this.trailChars = Array(TRAIL_LENGTH)
+        this.trailChars = Array(config.trailLength)
           .fill(0)
           .map(() => getRandomChar(MATRIX_CHARS));
 
@@ -129,8 +120,9 @@ export function MatrixDigitalRain() {
         const previousHeadChar = this.headChar;
         this.headChar = getRandomChar(MATRIX_CHARS);
 
-        if (this.y > canvas.height + BOTTOM_MARGIN) this.y = -FONT_SIZE;
-        this.y += FONT_SIZE;
+        if (this.y > canvas.height + config.bottomMargin)
+          this.y = -config.fontSize;
+        this.y += config.fontSize;
 
         // trail chars are updated top to bottom
         this.trailChars = [
@@ -144,7 +136,7 @@ export function MatrixDigitalRain() {
 
         ctx.save();
 
-        ctx.font = `${FONT_SIZE}px JetBrainsMono Nerd Font`;
+        ctx.font = `${config.fontSize}px JetBrainsMono Nerd Font`;
         ctx.fillStyle = "white";
         ctx.shadowColor = "white";
         ctx.shadowOffsetX = 0;
@@ -166,7 +158,7 @@ export function MatrixDigitalRain() {
         this.trailChars.forEach((char, i) => {
           ctx.save();
 
-          ctx.font = `${FONT_SIZE}px JetBrainsMono Nerd Font`;
+          ctx.font = `${config.fontSize}px JetBrainsMono Nerd Font`;
 
           const opacity =
             (30 * (this.trailChars.length - (i + 1))) / this.trailChars.length;
@@ -181,14 +173,15 @@ export function MatrixDigitalRain() {
           ctx.translate(canvas.width, 0);
           ctx.scale(-1, 1);
 
-          ctx.fillText(char, this.x, this.y - FONT_SIZE * (i + 1));
+          ctx.fillText(char, this.x, this.y - config.fontSize * (i + 1));
 
           ctx.restore();
         });
       }
     }
 
-    const maxChars = DENSITY * Math.floor(canvas.width / FONT_SIZE);
+    const maxChars =
+      config.density * Math.floor(canvas.width / config.fontSize);
     const spaceBetweenChars = canvas.width / maxChars;
 
     const chars = Array(maxChars)
@@ -215,7 +208,12 @@ export function MatrixDigitalRain() {
     const interval = setInterval(draw, (1000 * 1) / 30);
 
     return () => clearInterval(interval);
-  }, []);
+  }, [
+    config.bottomMargin,
+    config.density,
+    config.fontSize,
+    config.trailLength,
+  ]);
 
   return (
     <canvas ref={canvasRef} className="bg-zinc-950">

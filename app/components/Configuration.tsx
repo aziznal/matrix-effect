@@ -10,6 +10,7 @@ import {
   useMemo,
   useState,
 } from "react";
+import { SliderWithInput } from "./Slider";
 
 const DEFAULT_TRAIL_LENGTH = 7;
 const DEFAULT_FONT_SIZE = 21;
@@ -83,16 +84,45 @@ export function ConfigurationWindow(props: { className?: string }) {
   return (
     <div
       className={cn(
-        "absolute bottom-12 right-12 flex flex-col items-center gap-3 rounded-lg border-2 border-green-600 bg-green-400 bg-opacity-10 p-3 text-sm shadow backdrop-blur md:w-[350px]",
+        "absolute bottom-12 right-12 flex flex-col items-center rounded-lg border-2 border-green-600 bg-green-400 bg-opacity-10 p-3 text-sm shadow backdrop-blur md:w-[350px]",
         props.className,
       )}
     >
-      <LucideX
-        className="absolute right-4 top-4 cursor-pointer"
-        onClick={() => config.setIsConfigOpen(false)}
+      <div className="mb-4 flex w-full items-center justify-between">
+        <h1 className="text-xl font-bold">Parameters</h1>
+
+        <LucideX
+          className="cursor-pointer"
+          onClick={() => config.setIsConfigOpen(false)}
+        />
+      </div>
+
+      <SliderControls
+        title="Font Size"
+        description="The size of each character (affects column count)"
+        min={1}
+        max={100}
+        value={config.fontSize}
+        onValueChange={config.setFontSize}
       />
 
-      <pre>{JSON.stringify(config, null, 2)}</pre>
+      <SliderControls
+        title="Trail Length"
+        description="Controls how many trailing characters are left behind"
+        min={1}
+        max={12}
+        value={config.trailLength}
+        onValueChange={config.setTrailLength}
+      />
+
+      <SliderControls
+        title="Density"
+        description="How densly packed the character columns are (affects column count)"
+        min={1}
+        max={12}
+        value={config.density}
+        onValueChange={config.setDensity}
+      />
 
       <div className="flex gap-3">
         <Link
@@ -120,10 +150,34 @@ export function ConfigurationWindow(props: { className?: string }) {
 // - TODO: add info toast on how to show config again after hiding
 // - TODO: add FPS counter
 // - TODO: make menu closeable to allow nice fullscreen experience
-// - TODO: create slider component (with text input) to adjust values of params
 // - TODO: allow adjusting character set with checkboxes
 // - TODO: add config options, incl:
 //    - color
-//    - density
-//    - trail length
 //    - effects (blur, shadow, glow, etc.)
+
+type SliderControlProps = {
+  title: string;
+  description: string;
+
+  min: number;
+  max: number;
+  value: number;
+  onValueChange: (value: number) => void;
+};
+
+function SliderControls(props: SliderControlProps) {
+  return (
+    <div className="w-full">
+      <h2 className="font-bold">{props.title}</h2>
+
+      <p className="text-xs opacity-60">{props.description}</p>
+
+      <SliderWithInput
+        min={props.min}
+        max={props.max}
+        value={props.value}
+        onValueChange={props.onValueChange}
+      />
+    </div>
+  );
+}
