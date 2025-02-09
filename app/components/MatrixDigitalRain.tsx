@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useRef } from "react";
+import { useEffect, useRef, useState } from "react";
 import { useConfiguration } from "./Configuration";
 
 // TODO: measure perf
@@ -71,6 +71,28 @@ export function MatrixDigitalRain() {
 
   const config = useConfiguration();
 
+  const [screenSize, setScreenSize] = useState({
+    width: 0,
+    height: 0,
+  });
+
+  // tracking screen size changes to re-render canvas
+  useEffect(() => {
+    const updateScreenSize = () => {
+      setScreenSize({
+        width: window.innerWidth,
+        height: window.innerHeight,
+      });
+    };
+
+    window.addEventListener("resize", updateScreenSize);
+
+    // run effect once manually to set initial screen size
+    updateScreenSize();
+
+    return () => window.removeEventListener("resize", updateScreenSize);
+  }, []);
+
   useEffect(() => {
     const canvas = canvasRef.current;
 
@@ -80,8 +102,8 @@ export function MatrixDigitalRain() {
 
     if (!ctx) return;
 
-    canvas.width = window.innerWidth;
-    canvas.height = window.innerHeight;
+    canvas.width = screenSize.width;
+    canvas.height = screenSize.height;
 
     class Char {
       x: number;
@@ -213,6 +235,8 @@ export function MatrixDigitalRain() {
     config.density,
     config.fontSize,
     config.trailLength,
+    screenSize.height,
+    screenSize.width,
   ]);
 
   return (
