@@ -87,27 +87,28 @@ export function Slider({
 
   return (
     <div
+      ref={containerRef}
       className={cn(
-        "relative my-6 cursor-pointer touch-none rounded-full border border-green-800 before:absolute before:top-[50%] before:block before:h-[400%] before:w-full before:-translate-y-[50%] before:content-['']",
+        `relative my-4 cursor-pointer touch-none rounded-full border border-green-800 before:absolute before:top-[50%] before:block before:h-[400%] before:w-full before:-translate-y-[50%] before:content-['']`,
         className,
       )}
-      ref={containerRef}
     >
       <div
-        className="h-[6px] rounded-full bg-gradient-to-r from-green-400 to-green-600"
+        className="h-[4px] bg-gradient-to-r from-green-800 to-green-300"
         style={{
           width: `${currentValue}%`,
           maxWidth: "100%",
         }}
       ></div>
 
+      {/* handle */}
       <div
         className={cn(
-          "absolute top-[50%] h-[30px] w-[16px] -translate-x-[50%] -translate-y-[50%] rounded border border-emerald-800 bg-emerald-400 hover:bg-emerald-600",
-          isDragging && "bg-emerald-600",
+          "absolute top-[50%] h-[20px] w-[12px] -translate-x-[50%] -translate-y-[50%] rounded border border-emerald-800 bg-emerald-400 hover:bg-emerald-300",
+          isDragging && "bg-emerald-300",
         )}
         style={{
-          left: `${round(clamp(currentValue, 0, 100))}%`,
+          left: `${currentValue}%`,
         }}
       ></div>
     </div>

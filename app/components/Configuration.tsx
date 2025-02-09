@@ -1,7 +1,7 @@
 "use client";
 
 import { cn } from "@/lib/utils";
-import { LucideGithub, LucideX } from "lucide-react";
+import { LucideGithub, LucideHelpCircle, LucideX } from "lucide-react";
 import Link from "next/link";
 import {
   createContext,
@@ -11,6 +11,8 @@ import {
   useState,
 } from "react";
 import { SliderWithInput } from "./Slider";
+import { Tooltip, TooltipContent, TooltipTrigger } from "./Tooltip";
+import { TooltipProvider } from "@radix-ui/react-tooltip";
 
 const DEFAULT_TRAIL_LENGTH = 7;
 const DEFAULT_FONT_SIZE = 21;
@@ -84,12 +86,12 @@ export function ConfigurationWindow(props: { className?: string }) {
   return (
     <div
       className={cn(
-        "absolute bottom-12 right-12 flex flex-col items-center rounded-lg border-2 border-green-600 bg-green-400 bg-opacity-10 p-3 text-sm shadow backdrop-blur md:w-[350px]",
+        "absolute bottom-12 right-12 flex w-[300px] flex-col items-center rounded-lg border-2 border-green-600 bg-green-400 bg-opacity-10 p-5 font-mono text-xs shadow backdrop-blur",
         props.className,
       )}
     >
       <div className="mb-4 flex w-full items-center justify-between">
-        <h1 className="text-xl font-bold">Parameters</h1>
+        <h1 className="text-lg font-bold">Parameters</h1>
 
         <LucideX
           className="cursor-pointer"
@@ -97,37 +99,39 @@ export function ConfigurationWindow(props: { className?: string }) {
         />
       </div>
 
-      <SliderControls
-        title="Font Size"
-        description="The size of each character (affects column count)"
-        min={1}
-        max={100}
-        value={config.fontSize}
-        onValueChange={config.setFontSize}
-      />
+      <div className="mb-4 flex flex-col gap-3 w-full">
+        <SliderControls
+          title="Font Size"
+          description="The size of each character (affects column count)"
+          min={1}
+          max={100}
+          value={config.fontSize}
+          onValueChange={config.setFontSize}
+        />
 
-      <SliderControls
-        title="Trail Length"
-        description="Controls how many trailing characters are left behind"
-        min={1}
-        max={12}
-        value={config.trailLength}
-        onValueChange={config.setTrailLength}
-      />
+        <SliderControls
+          title="Trail Length"
+          description="Controls how many trailing characters are left behind"
+          min={1}
+          max={12}
+          value={config.trailLength}
+          onValueChange={config.setTrailLength}
+        />
 
-      <SliderControls
-        title="Density"
-        description="How densly packed the character columns are (affects column count)"
-        min={1}
-        max={12}
-        value={config.density}
-        onValueChange={config.setDensity}
-      />
+        <SliderControls
+          title="Density"
+          description="How densly packed the character columns are (affects column count)"
+          min={1}
+          max={12}
+          value={config.density}
+          onValueChange={config.setDensity}
+        />
+      </div>
 
       <div className="flex gap-3">
         <Link
           target="_blank"
-          className="flex items-center whitespace-nowrap rounded-full border-2 border-green-600 bg-green-400 bg-opacity-10 px-4 py-3 text-sm font-bold text-green-300 shadow backdrop-blur transition-colors hover:bg-opacity-35"
+          className="flex items-center whitespace-nowrap rounded-full border-2 border-green-600 bg-green-400 bg-opacity-10 px-3 py-2 text-xs font-bold text-green-300 shadow backdrop-blur transition-colors hover:bg-opacity-35"
           href="https://aziznal.com"
         >
           by Aziz Nal
@@ -135,10 +139,10 @@ export function ConfigurationWindow(props: { className?: string }) {
 
         <Link
           target="_blank"
-          className="flex items-center whitespace-nowrap rounded-full border-2 border-slate-600 bg-slate-400 bg-opacity-10 px-4 py-3 text-sm font-bold text-white shadow backdrop-blur transition-colors hover:bg-opacity-35"
+          className="flex items-center whitespace-nowrap rounded-full border-2 border-slate-600 bg-slate-400 bg-opacity-10 px-2 py-2 text-sm font-bold text-white shadow backdrop-blur transition-colors hover:bg-opacity-35"
           href="https://github.com/aziznal/matrix-effect"
         >
-          <LucideGithub />
+          <LucideGithub size="16" />
         </Link>
       </div>
     </div>
@@ -153,6 +157,7 @@ export function ConfigurationWindow(props: { className?: string }) {
 // - TODO: allow adjusting character set with checkboxes
 // - TODO: add config options, incl:
 //    - color
+//    - speed
 //    - effects (blur, shadow, glow, etc.)
 
 type SliderControlProps = {
@@ -163,14 +168,18 @@ type SliderControlProps = {
   max: number;
   value: number;
   onValueChange: (value: number) => void;
+
+  className?: string;
 };
 
 function SliderControls(props: SliderControlProps) {
   return (
-    <div className="w-full">
-      <h2 className="font-bold">{props.title}</h2>
+    <div className={cn("w-full", props.className)}>
+      <div className="flex items-center gap-1">
+        <h2 className="font-bold">{props.title}</h2>
 
-      <p className="text-xs opacity-60">{props.description}</p>
+        <DescriptionTooltip content={props.description} />
+      </div>
 
       <SliderWithInput
         min={props.min}
@@ -181,3 +190,17 @@ function SliderControls(props: SliderControlProps) {
     </div>
   );
 }
+
+const DescriptionTooltip: React.FC<{ content: string }> = (props) => {
+  return (
+    <TooltipProvider>
+      <Tooltip>
+        <TooltipTrigger>
+          <LucideHelpCircle className="text-emerald-300 opacity-50" size="16" />
+        </TooltipTrigger>
+
+        <TooltipContent side="top">{props.content}</TooltipContent>
+      </Tooltip>
+    </TooltipProvider>
+  );
+};
