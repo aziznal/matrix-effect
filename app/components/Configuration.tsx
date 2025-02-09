@@ -10,13 +10,10 @@ import {
   useMemo,
   useState,
 } from "react";
-import { SliderWithInput } from "./Slider";
-import { Tooltip, TooltipContent, TooltipTrigger } from "./Tooltip";
+import { Tooltip, TooltipContent, TooltipTrigger } from "./ui/Tooltip";
 import { TooltipProvider } from "@radix-ui/react-tooltip";
-
-const DEFAULT_TRAIL_LENGTH = 7;
-const DEFAULT_FONT_SIZE = 21;
-const DEFAULT_DENSITY = 8;
+import { SliderWithInput } from "./ui/Slider";
+import { hexToRgbObject, LabeledColorSelector } from "./ui/ColorSelector";
 
 type ConfigurationContextType = {
   isConfigOpen: boolean;
@@ -34,9 +31,23 @@ type ConfigurationContextType = {
   density: number;
   setDensity: (value: number) => void;
 
-  /** Computed value of how far down a character trail must go below the screen to fully disappear,
-   * based on font size and trail length*/
+  /** Computed value of how far down a character trail must go below the
+   * screen to fully disappear,
+   * based on font size and trail length
+   */
   bottomMargin: number;
+
+  leadingCharFillColor: string;
+  setLeadingCharFillColor: (value: string) => void;
+
+  leadingCharShadowColor: string;
+  setLeadingCharShadowColor: (value: string) => void;
+
+  trailFillColor: string;
+  setTrailFillColor: (value: string) => void;
+
+  trailShadowColor: string;
+  setTrailShadowColor: (value: string) => void;
 };
 
 const ConfigurationContext = createContext<ConfigurationContextType>(
@@ -48,12 +59,20 @@ export const useConfiguration = () => useContext(ConfigurationContext);
 export function ConfigurationProvider(props: PropsWithChildren) {
   const [isConfigOpen, setIsConfigOpen] = useState(true);
 
-  const [trailLength, setTrailLength] = useState(DEFAULT_TRAIL_LENGTH);
-  const [fontSize, setFontSize] = useState(DEFAULT_FONT_SIZE);
-  const [density, setDensity] = useState(DEFAULT_DENSITY);
+  const [trailLength, setTrailLength] = useState(7);
+  const [fontSize, setFontSize] = useState(21);
+  const [density, setDensity] = useState(8);
   const bottomMargin = useMemo(() => {
     return fontSize * (trailLength + 1); // +1 is to account for the head char
   }, [fontSize, trailLength]);
+
+  const [leadingCharFillColor, setLeadingCharFillColor] =
+    useState("255 255 255");
+  const [leadingCharShadowColor, setLeadingCharShadowColor] =
+    useState("255 255 255");
+
+  const [trailFillColor, setTrailFillColor] = useState("144 238 144");
+  const [trailShadowColor, setTrailShadowColor] = useState("0 255 0");
 
   return (
     <ConfigurationContext.Provider
@@ -71,6 +90,18 @@ export function ConfigurationProvider(props: PropsWithChildren) {
         setDensity,
 
         bottomMargin,
+
+        leadingCharFillColor,
+        setLeadingCharFillColor,
+
+        leadingCharShadowColor,
+        setLeadingCharShadowColor,
+
+        trailFillColor,
+        setTrailFillColor,
+
+        trailShadowColor,
+        setTrailShadowColor,
       }}
     >
       {props.children}
@@ -86,7 +117,7 @@ export function ConfigurationWindow(props: { className?: string }) {
   return (
     <div
       className={cn(
-        "max-h-[70vh] overflow-y-auto absolute bottom-12 right-12 flex w-[300px] flex-col items-center rounded-lg border-2 border-green-600 bg-green-400 bg-opacity-10 p-5 font-mono text-xs shadow backdrop-blur",
+        "absolute bottom-12 right-12 flex max-h-[70vh] w-[300px] flex-col items-center overflow-y-auto rounded-lg border-2 border-green-600 bg-green-400 bg-opacity-10 p-5 font-mono text-xs shadow backdrop-blur",
         props.className,
       )}
     >
@@ -99,7 +130,7 @@ export function ConfigurationWindow(props: { className?: string }) {
         />
       </div>
 
-      <div className="mb-4 flex flex-col gap-3 w-full">
+      <div className="mb-4 flex w-full flex-col gap-3">
         <SliderControls
           title="Font Size"
           description="The size of each character (affects column count)"
@@ -126,6 +157,36 @@ export function ConfigurationWindow(props: { className?: string }) {
           value={config.density}
           onValueChange={config.setDensity}
         />
+
+        <div className="mb-4">
+          <h2 className="mb-2 font-bold">Color Controls</h2>
+
+          <div className="flex flex-wrap gap-3">
+            <ColorControls
+              value={config.leadingCharFillColor}
+              onValueChange={config.setLeadingCharFillColor}
+              title="lead fill"
+            />
+
+            <ColorControls
+              value={config.leadingCharShadowColor}
+              onValueChange={config.setLeadingCharShadowColor}
+              title="lead shadow"
+            />
+
+            <ColorControls
+              value={config.trailFillColor}
+              onValueChange={config.setTrailFillColor}
+              title="trail fill"
+            />
+
+            <ColorControls
+              value={config.trailShadowColor}
+              onValueChange={config.setTrailShadowColor}
+              title="trail shadow"
+            />
+          </div>
+        </div>
       </div>
 
       <div className="flex gap-3">
@@ -155,8 +216,8 @@ export function ConfigurationWindow(props: { className?: string }) {
 // - TODO: add FPS counter
 // - TODO: make menu closeable to allow nice fullscreen experience
 // - TODO: allow adjusting character set with checkboxes
+// - TODO: improve color selector controls (custom implementation?)
 // - TODO: add config options, incl:
-//    - color
 //    - speed
 //    - enabling full-screen
 //    - effects (blur, shadow, glow, etc.)
@@ -203,5 +264,25 @@ const DescriptionTooltip: React.FC<{ content: string }> = (props) => {
         <TooltipContent side="top">{props.content}</TooltipContent>
       </Tooltip>
     </TooltipProvider>
+  );
+};
+
+const ColorControls: React.FC<{
+  value: string;
+  onValueChange: (value: string) => void;
+
+  title: string;
+}> = (props) => {
+  const onValueChangeAsRgb = (hexColor: string) => {
+    const { r, g, b } = hexToRgbObject(hexColor);
+    props.onValueChange(`${r} ${g} ${b}`);
+  };
+
+  return (
+    <LabeledColorSelector
+      label={props.title}
+      value={`rgb(${props.value})`}
+      onValueChange={onValueChangeAsRgb}
+    />
   );
 };

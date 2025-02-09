@@ -159,8 +159,8 @@ export function MatrixDigitalRain() {
         ctx.save();
 
         ctx.font = `${config.fontSize}px JetBrainsMono Nerd Font`;
-        ctx.fillStyle = "white";
-        ctx.shadowColor = "white";
+        ctx.fillStyle = `rgb(${config.leadingCharFillColor})`;
+        ctx.shadowColor = `rgb(${config.leadingCharShadowColor})`;
         ctx.shadowOffsetX = 0;
         ctx.shadowOffsetY = 0;
         ctx.shadowBlur = 12;
@@ -185,9 +185,9 @@ export function MatrixDigitalRain() {
           const opacity =
             (30 * (this.trailChars.length - (i + 1))) / this.trailChars.length;
 
-          ctx.fillStyle = `rgb(144 238 144 / ${opacity}%)`;
+          ctx.fillStyle = `rgb(${config.trailFillColor} / ${opacity}%)`;
 
-          ctx.shadowColor = "lime";
+          ctx.shadowColor = `rgb(${config.trailShadowColor})`;
           ctx.shadowOffsetX = 0;
           ctx.shadowOffsetY = 0;
           ctx.shadowBlur = 4;
@@ -234,7 +234,11 @@ export function MatrixDigitalRain() {
     config.bottomMargin,
     config.density,
     config.fontSize,
+    config.leadingCharFillColor,
+    config.leadingCharShadowColor,
+    config.trailFillColor,
     config.trailLength,
+    config.trailShadowColor,
     screenSize.height,
     screenSize.width,
   ]);

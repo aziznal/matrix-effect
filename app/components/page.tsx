@@ -2,7 +2,15 @@
 
 import { PropsWithChildren, useState } from "react";
 import { ConfigurationProvider, ConfigurationWindow } from "./Configuration";
-import { Slider, SliderWithInput } from "./Slider";
+import { Slider, SliderWithInput } from "./ui/Slider";
+import { Input } from "./ui/Input";
+import {
+  TooltipProvider,
+  Tooltip,
+  TooltipTrigger,
+  TooltipContent,
+} from "./ui/Tooltip";
+import { ColorSelector, LabeledColorSelector } from "./ui/ColorSelector";
 
 export const dynamic = "force-dynamic";
 
@@ -24,6 +32,21 @@ export default function ComponentsPlayground() {
       <Component>
         <ComponentTitle>Slider</ComponentTitle>
         <SliderDemo />
+      </Component>
+
+      <Component>
+        <ComponentTitle>Input</ComponentTitle>
+        <InputDemo />
+      </Component>
+
+      <Component>
+        <ComponentTitle>Color Selector</ComponentTitle>
+        <ColorSelectorDemo />
+      </Component>
+
+      <Component>
+        <ComponentTitle>Tooltip</ComponentTitle>
+        <TooltipDemo />
       </Component>
     </div>
   );
@@ -49,6 +72,42 @@ function SliderDemo() {
         max={700}
         value={value}
         onValueChange={setValue}
+      />
+    </div>
+  );
+}
+
+function InputDemo() {
+  return (
+    <div className="md:w-[50%]">
+      <Input />
+    </div>
+  );
+}
+
+function TooltipDemo() {
+  return (
+    <TooltipProvider>
+      <Tooltip open>
+        <TooltipTrigger />
+
+        <TooltipContent side="right">It{"'"}s a tooltip, yo.</TooltipContent>
+      </Tooltip>
+    </TooltipProvider>
+  );
+}
+
+function ColorSelectorDemo() {
+  const [color, setColor] = useState("");
+
+  return (
+    <div className="flex gap-3">
+      <ColorSelector value={color} onValueChange={setColor} />
+
+      <LabeledColorSelector
+        value={color}
+        onValueChange={setColor}
+        label="labeled"
       />
     </div>
   );
