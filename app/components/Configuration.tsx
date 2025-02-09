@@ -86,7 +86,7 @@ export function ConfigurationWindow(props: { className?: string }) {
   return (
     <div
       className={cn(
-        "absolute bottom-12 right-12 flex w-[300px] flex-col items-center rounded-lg border-2 border-green-600 bg-green-400 bg-opacity-10 p-5 font-mono text-xs shadow backdrop-blur",
+        "max-h-[70vh] overflow-y-auto absolute bottom-12 right-12 flex w-[300px] flex-col items-center rounded-lg border-2 border-green-600 bg-green-400 bg-opacity-10 p-5 font-mono text-xs shadow backdrop-blur",
         props.className,
       )}
     >
@@ -158,6 +158,7 @@ export function ConfigurationWindow(props: { className?: string }) {
 // - TODO: add config options, incl:
 //    - color
 //    - speed
+//    - enabling full-screen
 //    - effects (blur, shadow, glow, etc.)
 
 type SliderControlProps = {
