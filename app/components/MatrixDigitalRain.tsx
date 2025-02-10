@@ -7,65 +7,6 @@ import { useConfiguration } from "./Configuration";
 // TODO: improve perf
 // TODO: make it easy to fill screen
 
-// prettier-ignore
-const MATRIX_CHARS = [
-    // Katakana (Half-width)
-    'ｱ', 'ｲ', 'ｳ', 'ｴ', 'ｵ',
-    'ｶ', 'ｷ', 'ｸ', 'ｹ', 'ｺ',
-    'ｻ', 'ｼ', 'ｽ', 'ｾ', 'ｿ',
-    'ﾀ', 'ﾁ', 'ﾂ', 'ﾃ', 'ﾄ',
-    'ﾅ', 'ﾆ', 'ﾇ', 'ﾈ', 'ﾉ',
-    'ﾊ', 'ﾋ', 'ﾌ', 'ﾍ', 'ﾎ',
-    'ﾏ', 'ﾐ', 'ﾑ', 'ﾒ', 'ﾓ',
-    'ﾔ', 'ﾕ', 'ﾖ',
-    'ﾗ', 'ﾘ', 'ﾙ', 'ﾚ', 'ﾛ',
-    'ﾜ', 'ｦ', 'ﾝ',
-    // // Hiragana
-    // 'あ', 'い', 'う', 'え', 'お',
-    // 'か', 'き', 'く', 'け', 'こ',
-    // 'さ', 'し', 'す', 'せ', 'そ',
-    // 'た', 'ち', 'つ', 'て', 'と',
-    // 'な', 'に', 'ぬ', 'ね', 'の',
-    // 'は', 'ひ', 'ふ', 'へ', 'ほ',
-    // 'ま', 'み', 'む', 'め', 'も',
-    // 'や', 'ゆ', 'よ',
-    // 'ら', 'り', 'る', 'れ', 'ろ',
-    // 'わ', 'を', 'ん',
-    // // Latin Alphabet (Uppercase)
-    // 'A', 'B', 'C', 'D', 'E', 'F', 'G', 'H', 'I', 'J',
-    // 'K', 'L', 'M', 'N', 'O', 'P', 'Q', 'R', 'S', 'T',
-    // 'U', 'V', 'W', 'X', 'Y', 'Z',
-    // // Greek Letters
-    'Α', 'Β', 'Γ', 'Δ', 'Ε',
-    'Ζ', 'Η', 'Θ', 'Ι', 'Κ',
-    'Λ', 'Μ', 'Ν', 'Ξ', 'Ο',
-    'Π', 'Ρ', 'Σ', 'Τ', 'Υ',
-    'Φ', 'Χ', 'Ψ', 'Ω',
-    // // Cyrillic Letters
-    // 'А', 'Б', 'В', 'Г', 'Д',
-    // 'Е', 'Ё', 'Ж', 'З', 'И',
-    // 'Й', 'К', 'Л', 'М', 'Н',
-    // 'О', 'П', 'Р', 'С', 'Т',
-    // 'У', 'Ф', 'Х', 'Ц', 'Ч',
-    // 'Ш', 'Щ', 'Ъ', 'Ы', 'Ь',
-    // 'Э', 'Ю', 'Я',
-    // // Chinese Characters
-    // '中', '国', '文', '字', '雨', '電', '話', '車', '山', '水',
-    // // Numbers
-    // '0', '1', '2', '3', '4', '5', '6', '7', '8', '9',
-    // // Symbols
-    // '!', '@', '//', '$', '%', '^', '&', '*', '(', ')',
-    // '-', '_', '+', '=', '[', ']', '{', '}', '|', '\\',
-    // ':', ';', '"', '\'', '<', '>', ',', '.', '?', '/',
-    // '~', '`', '✓', '✔', '✕', '✖', '★', '☆', '○', '●',
-    // // Mathematical Symbols
-    // '∞', '≠', '≡', '≤', '≥', '±', '∑', '∏', '∫', '√',
-    // '∆', '∇', '∂', '∈', '∉', '∅', '∧', '∨', '⊕', '⊗',
-    // // Miscellaneous Symbols
-    // '♠', '♣', '♥', '♦', '♤', '♧', '♡', '♢', '☺', '☻',
-    // '♂', '♀', '♪', '♫', '☼', '§', '¤', '©', '®', '™'
-]
-
 export function MatrixDigitalRain() {
   const canvasRef = useRef<HTMLCanvasElement>(null);
 
@@ -122,11 +63,11 @@ export function MatrixDigitalRain() {
 
         this.y = getRandomInt(0, canvas?.height);
 
-        this.headChar = getRandomChar(MATRIX_CHARS);
+        this.headChar = getRandomChar(config.chars);
 
         this.trailChars = Array(config.trailLength)
           .fill(0)
-          .map(() => getRandomChar(MATRIX_CHARS));
+          .map(() => getRandomChar(config.chars));
 
         this.updateStep = getRandomInt(100, 500);
         this.lastUpdateTime = Date.now();
@@ -140,7 +81,7 @@ export function MatrixDigitalRain() {
         this.lastUpdateTime = Date.now();
 
         const previousHeadChar = this.headChar;
-        this.headChar = getRandomChar(MATRIX_CHARS);
+        this.headChar = getRandomChar(config.chars);
 
         if (this.y > canvas.height + config.bottomMargin)
           this.y = -config.fontSize;
@@ -232,6 +173,7 @@ export function MatrixDigitalRain() {
     return () => clearInterval(interval);
   }, [
     config.bottomMargin,
+    config.chars,
     config.density,
     config.fontSize,
     config.leadingCharFillColor,

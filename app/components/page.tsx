@@ -11,44 +11,56 @@ import {
   TooltipContent,
 } from "./ui/Tooltip";
 import { ColorSelector, LabeledColorSelector } from "./ui/ColorSelector";
+import { Popover, PopoverContent, PopoverTrigger } from "./ui/Popover";
+import { LanguageSetSelector } from "./LanguageSetSelector";
 
 export const dynamic = "force-dynamic";
 
 export default function ComponentsPlayground() {
   return (
-    <div className="container mx-auto my-12 flex min-h-[100dvh] flex-col px-4">
-      <h1 className="mb-8 text-center text-2xl font-bold">
-        Component Playground
-      </h1>
+    <ConfigurationProvider>
+      <div className="container mx-auto my-12 flex min-h-[100dvh] flex-col px-4">
+        <h1 className="mb-8 text-center text-2xl font-bold">
+          Component Playground
+        </h1>
 
-      <Component>
-        <ComponentTitle>Configuration Window</ComponentTitle>
+        <Component>
+          <ComponentTitle>Configuration Window</ComponentTitle>
 
-        <ConfigurationProvider>
           <ConfigurationWindow className="static" />
-        </ConfigurationProvider>
-      </Component>
+        </Component>
 
-      <Component>
-        <ComponentTitle>Slider</ComponentTitle>
-        <SliderDemo />
-      </Component>
+        <Component>
+          <ComponentTitle>Slider</ComponentTitle>
+          <SliderDemo />
+        </Component>
 
-      <Component>
-        <ComponentTitle>Input</ComponentTitle>
-        <InputDemo />
-      </Component>
+        <Component>
+          <ComponentTitle>Input</ComponentTitle>
+          <InputDemo />
+        </Component>
 
-      <Component>
-        <ComponentTitle>Color Selector</ComponentTitle>
-        <ColorSelectorDemo />
-      </Component>
+        <Component>
+          <ComponentTitle>Color Selector</ComponentTitle>
+          <ColorSelectorDemo />
+        </Component>
 
-      <Component>
-        <ComponentTitle>Tooltip</ComponentTitle>
-        <TooltipDemo />
-      </Component>
-    </div>
+        <Component>
+          <ComponentTitle>Language Set Selector</ComponentTitle>
+          <LanguageSetSelectorDemo />
+        </Component>
+
+        <Component>
+          <ComponentTitle>Tooltip</ComponentTitle>
+          <TooltipDemo />
+        </Component>
+
+        <Component>
+          <ComponentTitle>Popover</ComponentTitle>
+          <PopoverDemo />
+        </Component>
+      </div>
+    </ConfigurationProvider>
   );
 }
 
@@ -85,18 +97,6 @@ function InputDemo() {
   );
 }
 
-function TooltipDemo() {
-  return (
-    <TooltipProvider>
-      <Tooltip open>
-        <TooltipTrigger />
-
-        <TooltipContent side="right">It{"'"}s a tooltip, yo.</TooltipContent>
-      </Tooltip>
-    </TooltipProvider>
-  );
-}
-
 function ColorSelectorDemo() {
   const [color, setColor] = useState("");
 
@@ -110,5 +110,37 @@ function ColorSelectorDemo() {
         label="labeled"
       />
     </div>
+  );
+}
+
+function LanguageSetSelectorDemo() {
+  return (
+    <div>
+      <LanguageSetSelector />
+    </div>
+  );
+}
+
+function TooltipDemo() {
+  return (
+    <TooltipProvider>
+      <Tooltip open>
+        <TooltipTrigger />
+
+        <TooltipContent side="right">It{"'"}s a tooltip, yo.</TooltipContent>
+      </Tooltip>
+    </TooltipProvider>
+  );
+}
+
+function PopoverDemo() {
+  return (
+    <Popover open>
+      <PopoverTrigger />
+
+      <PopoverContent align="start" side="right">
+        It{"'"}s a popover, yo.
+      </PopoverContent>
+    </Popover>
   );
 }

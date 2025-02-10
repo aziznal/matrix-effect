@@ -14,6 +14,9 @@ import { Tooltip, TooltipContent, TooltipTrigger } from "./ui/Tooltip";
 import { TooltipProvider } from "@radix-ui/react-tooltip";
 import { SliderWithInput } from "./ui/Slider";
 import { hexToRgbObject, LabeledColorSelector } from "./ui/ColorSelector";
+import { LanguageSetSelector } from "./LanguageSetSelector";
+import { Charsets } from "@/lib/charsets";
+import { Popover, PopoverContent, PopoverTrigger } from "./ui/Popover";
 
 type ConfigurationContextType = {
   isConfigOpen: boolean;
@@ -36,6 +39,10 @@ type ConfigurationContextType = {
    * based on font size and trail length
    */
   bottomMargin: number;
+
+  /** The set from which characters are selected for columns of the digital rain */
+  chars: string[];
+  setChars: (value: string[]) => void;
 
   leadingCharFillColor: string;
   setLeadingCharFillColor: (value: string) => void;
@@ -74,6 +81,8 @@ export function ConfigurationProvider(props: PropsWithChildren) {
   const [trailFillColor, setTrailFillColor] = useState("144 238 144");
   const [trailShadowColor, setTrailShadowColor] = useState("0 255 0");
 
+  const [chars, setChars] = useState<string[]>([...Charsets.Katakana.chars]);
+
   return (
     <ConfigurationContext.Provider
       value={{
@@ -102,6 +111,9 @@ export function ConfigurationProvider(props: PropsWithChildren) {
 
         trailShadowColor,
         setTrailShadowColor,
+
+        chars,
+        setChars,
       }}
     >
       {props.children}
@@ -158,6 +170,8 @@ export function ConfigurationWindow(props: { className?: string }) {
           onValueChange={config.setDensity}
         />
 
+        <LanguageSetControls className="mb-2" />
+
         <div className="mb-4">
           <h2 className="mb-2 font-bold">Color Controls</h2>
 
@@ -209,18 +223,6 @@ export function ConfigurationWindow(props: { className?: string }) {
     </div>
   );
 }
-
-// todos:
-// - TODO: make config expand from the side
-// - TODO: add info toast on how to show config again after hiding
-// - TODO: add FPS counter
-// - TODO: make menu closeable to allow nice fullscreen experience
-// - TODO: allow adjusting character set with checkboxes
-// - TODO: improve color selector controls (custom implementation?)
-// - TODO: add config options, incl:
-//    - speed
-//    - enabling full-screen
-//    - effects (blur, shadow, glow, etc.)
 
 type SliderControlProps = {
   title: string;
@@ -286,3 +288,38 @@ const ColorControls: React.FC<{
     />
   );
 };
+
+const LanguageSetControls: React.FC<{ className?: string }> = (props) => {
+  return (
+    <div className={cn(props.className)}>
+      <h2 className="mb-2 font-bold">Characters</h2>
+
+      <Popover>
+        <PopoverTrigger className="rounded-md border border-green-800 px-2 py-1">
+          Modify Characters
+        </PopoverTrigger>
+
+        <PopoverContent
+          side="bottom"
+          align="center"
+          className="max-h-[50vh] overflow-y-auto"
+        >
+          <LanguageSetSelector />
+        </PopoverContent>
+      </Popover>
+    </div>
+  );
+};
+
+// todos:
+// - TODO: make config expand from the side
+// - TODO: add info toast on how to show config again after hiding
+// - TODO: add FPS counter
+// - TODO: make menu closeable to allow nice fullscreen experience
+// - TODO: improve color selector controls (custom implementation?)
+// - TODO: store state in URL
+// - TODO: add config options, incl:
+//    - speed
+//    - enabling full-screen
+//    - effects (blur, shadow, glow, etc.)
+//    - toggle for flipping chars vertically
