@@ -1,7 +1,8 @@
 "use client";
 
-import { useEffect, useRef, useState } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
 import { useConfiguration } from "./Configuration";
+import { useAnimation } from "./useAnimation";
 
 // TODO: measure perf
 // TODO: improve perf
@@ -17,7 +18,7 @@ export function MatrixDigitalRain() {
     height: 0,
   });
 
-  // tracking screen size changes to re-render canvas
+  // track window size changes to re-render canvas on entire window
   useEffect(() => {
     const updateScreenSize = () => {
       setScreenSize({
@@ -34,7 +35,8 @@ export function MatrixDigitalRain() {
     return () => window.removeEventListener("resize", updateScreenSize);
   }, []);
 
-  useEffect(() => {
+  // set up and render on canvas
+  const animateCallback = useCallback(() => {
     const canvas = canvasRef.current;
 
     if (!canvas) return;
@@ -46,14 +48,21 @@ export function MatrixDigitalRain() {
     canvas.width = screenSize.width;
     canvas.height = screenSize.height;
 
-    class Char {
+    /** Handles styling and behavior for a single column of digital rain */
+    class RainColumn {
       x: number;
       y: number;
 
+      /** the character at the head (i.e. lowest y) of the column */
       headChar: string;
+
+      /** all the characters in the column other than the head, ordered bottom to op */
       trailChars: string[];
 
+      /** how much time must pass before a column moves down one character on the y axis */
       updateStep: number;
+
+      /** timestamp when last update happened  */
       lastUpdateTime: number;
 
       constructor(args: { x: number }) {
@@ -65,12 +74,16 @@ export function MatrixDigitalRain() {
 
         this.headChar = getRandomChar(config.chars);
 
-        this.trailChars = Array(config.trailLength)
-          .fill(0)
-          .map(() => getRandomChar(config.chars));
+        this.trailChars = this.#populateTrail();
 
         this.updateStep = getRandomInt(100, 500);
         this.lastUpdateTime = Date.now();
+      }
+
+      #populateTrail() {
+        return Array(config.trailLength)
+          .fill(0)
+          .map(() => getRandomChar(config.chars));
       }
 
       update() {
@@ -112,10 +125,10 @@ export function MatrixDigitalRain() {
 
         ctx.restore();
 
-        this.drawTrail();
+        this.#drawTrail();
       }
 
-      drawTrail() {
+      #drawTrail() {
         if (!ctx || !canvas) throw new Error("Canvas or Context is undefined.");
 
         this.trailChars.forEach((char, i) => {
@@ -151,12 +164,12 @@ export function MatrixDigitalRain() {
       .fill(0)
       .map(
         (_, i) =>
-          new Char({
+          new RainColumn({
             x: spaceBetweenChars * (i + 1),
           }),
       );
 
-    const draw = () => {
+    return () => {
       ctx.save();
       ctx.fillStyle = "rgb(5 16 1 / 75%)";
       ctx.fillRect(0, 0, canvas.width, canvas.height);
@@ -167,10 +180,6 @@ export function MatrixDigitalRain() {
         c.draw();
       });
     };
-
-    const interval = setInterval(draw, (1000 * 1) / 30);
-
-    return () => clearInterval(interval);
   }, [
     config.bottomMargin,
     config.chars,
@@ -184,6 +193,10 @@ export function MatrixDigitalRain() {
     screenSize.height,
     screenSize.width,
   ]);
+
+  useAnimation({
+    animationFn: animateCallback(),
+  });
 
   return (
     <canvas ref={canvasRef} className="bg-zinc-950">

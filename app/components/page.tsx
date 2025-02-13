@@ -13,8 +13,11 @@ import {
 import { ColorSelector, LabeledColorSelector } from "./ui/ColorSelector";
 import { Popover, PopoverContent, PopoverTrigger } from "./ui/Popover";
 import { LanguageSetSelector } from "./LanguageSetSelector";
+import { FpsCounter } from "./FpsCounter";
 
 export const dynamic = "force-dynamic";
+
+// TODO: add digital rain component demo
 
 export default function ComponentsPlayground() {
   return (
@@ -31,13 +34,8 @@ export default function ComponentsPlayground() {
         </Component>
 
         <Component>
-          <ComponentTitle>Slider</ComponentTitle>
-          <SliderDemo />
-        </Component>
-
-        <Component>
-          <ComponentTitle>Input</ComponentTitle>
-          <InputDemo />
+          <ComponentTitle>Fps Counter</ComponentTitle>
+          <FpsCounterDemo />
         </Component>
 
         <Component>
@@ -48,6 +46,16 @@ export default function ComponentsPlayground() {
         <Component>
           <ComponentTitle>Language Set Selector</ComponentTitle>
           <LanguageSetSelectorDemo />
+        </Component>
+
+        <Component>
+          <ComponentTitle>Slider</ComponentTitle>
+          <SliderDemo />
+        </Component>
+
+        <Component>
+          <ComponentTitle>Input</ComponentTitle>
+          <InputDemo />
         </Component>
 
         <Component>
@@ -143,4 +151,8 @@ function PopoverDemo() {
       </PopoverContent>
     </Popover>
   );
+}
+
+function FpsCounterDemo() {
+  return <FpsCounter></FpsCounter>;
 }

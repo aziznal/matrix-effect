@@ -55,6 +55,9 @@ type ConfigurationContextType = {
 
   trailShadowColor: string;
   setTrailShadowColor: (value: string) => void;
+
+  isFpsCounterVisible: boolean;
+  setIsFpsCounterVisible: (value: boolean) => void;
 };
 
 const ConfigurationContext = createContext<ConfigurationContextType>(
@@ -82,6 +85,8 @@ export function ConfigurationProvider(props: PropsWithChildren) {
   const [trailShadowColor, setTrailShadowColor] = useState("0 255 0");
 
   const [chars, setChars] = useState<string[]>([...Charsets.Katakana.chars]);
+
+  const [isFpsCounterVisible, setIsFpsCounterVisible] = useState(false);
 
   return (
     <ConfigurationContext.Provider
@@ -114,6 +119,9 @@ export function ConfigurationProvider(props: PropsWithChildren) {
 
         chars,
         setChars,
+
+        isFpsCounterVisible,
+        setIsFpsCounterVisible,
       }}
     >
       {props.children}
@@ -172,7 +180,7 @@ export function ConfigurationWindow(props: { className?: string }) {
 
         <LanguageSetControls className="mb-2" />
 
-        <div className="mb-4">
+        <div >
           <h2 className="mb-2 font-bold">Color Controls</h2>
 
           <div className="flex flex-wrap gap-3">
@@ -201,6 +209,8 @@ export function ConfigurationWindow(props: { className?: string }) {
             />
           </div>
         </div>
+
+        <FpsControls className="mb-4" />
       </div>
 
       <div className="flex gap-3">
@@ -311,10 +321,26 @@ const LanguageSetControls: React.FC<{ className?: string }> = (props) => {
   );
 };
 
+const FpsControls: React.FC<{ className?: string }> = (props) => {
+  const { isFpsCounterVisible, setIsFpsCounterVisible } = useConfiguration();
+
+  return (
+    <div className={cn("w-full", props.className)}>
+      <label className="flex items-center gap-2">
+        <input
+          type="checkbox"
+          defaultChecked={isFpsCounterVisible}
+          onClick={() => setIsFpsCounterVisible(!isFpsCounterVisible)}
+        />
+        Show FPS
+      </label>
+    </div>
+  );
+};
+
 // todos:
 // - TODO: make config expand from the side
 // - TODO: add info toast on how to show config again after hiding
-// - TODO: add FPS counter
 // - TODO: make menu closeable to allow nice fullscreen experience
 // - TODO: improve color selector controls (custom implementation?)
 // - TODO: store state in URL
@@ -323,3 +349,4 @@ const LanguageSetControls: React.FC<{ className?: string }> = (props) => {
 //    - enabling full-screen
 //    - effects (blur, shadow, glow, etc.)
 //    - toggle for flipping chars vertically
+//    - add retro-fy effect with CRT effect and a fish-eye lens
